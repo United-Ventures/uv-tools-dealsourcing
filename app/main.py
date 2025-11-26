@@ -107,15 +107,15 @@ SCORING_RULES_TEXT = (
     "Valuta se contattare la persona per possibile investimento (0-10). Assegna 1 punto per ciascun criterio soddisfatto: "
     "1) Esperienza da founder o co-founder; 2) Ruoli C-level (CEO/CTO/...) passati o attuali; "
     "3) Tempo in stealth < 18 mesi; 4) Università top-tier (Ivy, Oxbridge, Stanford, MIT, ETH, EPFL, Bocconi, PoliMi, PoliTo, Sapienza, Sant'Anna, Normale, etc.); "
-    "5) Background tecnico (CS/AI/ingegneria/deep tech); 6) Serial entrepreneur (>=2 esperienze da founder); "
-    "7) Esperienza in big tech/scaleup (FAANG/unicorn); 8) Network forte (followers o connections elevati > 5000); "
+    "5) Background tecnico (CS/AI/ingegneria/deep tech); 6) Serial entrepreneur (>=2 esperienze da founder di startup) o second time Founder di una startup; "
+    "7) Esperienza in big tech/scaleup/StartUp che ha avuto una crescità di employees nell'ultimo periodo (FAANG/unicorn/ScaleUp); 8) Network forte (followers o connections elevati > 5000); "
     "9) Ruolo attuale con alta responsabilità (team >10, guida divisione); 10) Momentum: ruolo attuale iniziato < 24 mesi. "
     'Restituisci SOLO JSON valido con: {"score": int 0-10, "reasons": string breve in italiano, "contact": boolean (true se score>=7)}.'
 )
 TOP_UNI_CANONICAL = [
     "Harvard University","Stanford University","Massachusetts Institute of Technology","University of Oxford","University of Cambridge",
     "ETH Zurich","EPFL","University of Bologna","Università Bocconi","Politecnico di Milano","Politecnico di Torino","Sapienza University of Rome",
-    "Scuola Superiore Sant'Anna","Scuola Normale Superiore"
+    "Scuola Superiore Sant'Anna","Scuola Normale Superiore"  # Università Ca' Foscari venezia -Unitversità degli studi triste - Universtià di trento - Universtià degli studi di Bari - politecnico di bari - Alma mater studiuorum bologna - Uni Pisa 
 ]
 
 def _safe_json_extract(s):
@@ -173,6 +173,7 @@ def score(req: ScoreRequest):
             "connections": r.connections,
             "linkedinUrl": str(r.linkedinUrl) if r.linkedinUrl else None,
         }
+        
         system_msg = SCORING_RULES_TEXT + " Considera anche questa lista di università top-tier come riferimento: " + ", ".join(TOP_UNI_CANONICAL) + "."
         user_msg = json.dumps(payload, ensure_ascii=False)
 
@@ -206,4 +207,3 @@ def score(req: ScoreRequest):
         model_used=model,
         people_scored=people_scored,
     )
-
