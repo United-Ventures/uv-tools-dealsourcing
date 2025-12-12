@@ -103,20 +103,52 @@ def enrich(req: EnrichRequest):
         people_master=[MasterRow(**r) for r in master_rows],
     )
 
+# SCORING_RULES_TEXT = (
+#     "Valuta se contattare la persona per possibile investimento (0-10). Assegna 1 punto per ciascun criterio soddisfatto: "
+#     "1) Esperienza da founder o co-founder; 2) Ruoli C-level (CEO/CTO/...) passati o attuali; "
+#     "3) Tempo in stealth < 18 mesi; 4) Università top-tier (Ivy, Oxbridge, Stanford, MIT, ETH, EPFL, Bocconi, PoliMi, PoliTo, Sapienza, Sant'Anna, Normale, etc.); "
+#     "5) Background tecnico (CS/AI/ingegneria/deep tech); 6) Serial entrepreneur (>=2 esperienze da founder di startup) o second time Founder di una startup; "
+#     "7) Esperienza in big tech/scaleup/StartUp che ha avuto una crescità di employees nell'ultimo periodo (FAANG/unicorn/ScaleUp); 8) Network forte (followers o connections elevati > 5000); "
+#     "9) Ruolo attuale con alta responsabilità (team >10, guida divisione); 10) Momentum: ruolo attuale iniziato < 24 mesi. "
+#     'Restituisci SOLO JSON valido con: {"score": int 0-10, "reasons": string breve in italiano, "contact": boolean (true se score>=7)}.'
+# )
+# TOP_UNI_CANONICAL = [
+#     "Harvard University","Stanford University","Massachusetts Institute of Technology","University of Oxford","University of Cambridge",
+#     "ETH Zurich","EPFL","University of Bologna","Università Bocconi","Politecnico di Milano","Politecnico di Torino","Sapienza University of Rome",
+#     "Scuola Superiore Sant'Anna","Scuola Normale Superiore"  # Università Ca' Foscari venezia -Unitversità degli studi triste - Universtià di trento - Universtià degli studi di Bari - politecnico di bari - Alma mater studiuorum bologna - Uni Pisa 
+# ]
+
 SCORING_RULES_TEXT = (
-    "Valuta se contattare la persona per possibile investimento (0-10). Assegna 1 punto per ciascun criterio soddisfatto: "
-    "1) Esperienza da founder o co-founder; 2) Ruoli C-level (CEO/CTO/...) passati o attuali; "
-    "3) Tempo in stealth < 18 mesi; 4) Università top-tier (Ivy, Oxbridge, Stanford, MIT, ETH, EPFL, Bocconi, PoliMi, PoliTo, Sapienza, Sant'Anna, Normale, etc.); "
-    "5) Background tecnico (CS/AI/ingegneria/deep tech); 6) Serial entrepreneur (>=2 esperienze da founder di startup) o second time Founder di una startup; "
-    "7) Esperienza in big tech/scaleup/StartUp che ha avuto una crescità di employees nell'ultimo periodo (FAANG/unicorn/ScaleUp); 8) Network forte (followers o connections elevati > 5000); "
-    "9) Ruolo attuale con alta responsabilità (team >10, guida divisione); 10) Momentum: ruolo attuale iniziato < 24 mesi. "
-    'Restituisci SOLO JSON valido con: {"score": int 0-10, "reasons": string breve in italiano, "contact": boolean (true se score>=7)}.'
+    "Evaluate whether the person should be contacted for a potential investment (score 0–10). "
+    "If the person is a CEO, technical background carries less weight. "
+    "If the person is a CTO, business background carries less weight. "
+    "Assign 1 point for each criterion satisfied: "
+    "1) Founder or co-founder experience; "
+    "2) Current or past C-level roles (CEO/CTO/COO/etc.); "
+    "3) Traction or validation signals: product launched, customers/pilots/LOIs, revenue, user growth, "
+    "relevant partnerships, fundraising or grants (including pre-seed/seed), or clear performance metrics; "
+    "4) Top-tier universities (Ivy League, Oxbridge, Stanford, MIT, ETH, EPFL, Bocconi, "
+    "Politecnico di Milano, Politecnico di Torino, Sapienza University of Rome, "
+    "Scuola Superiore Sant'Anna, Scuola Normale Superiore, etc.); "
+    "5) Technical background (CS/AI/engineering/deep tech) OR business background from top business schools "
+    "or prior experience managing large teams; "
+    "6) Serial entrepreneur (≥2 startup founder experiences) or second-time founder; "
+    "7) Experience in big tech / unicorns / high-growth scaleups (e.g., FAANG, unicorns, ScaleUps); "
+    "8) Strong network (high number of followers or connections > 5,000); "
+    "9) Current role with high responsibility, especially if the company has raised investment rounds larger than €2M; "
+    "10) Recent momentum: current role or company/product launch started within the last 24 months. "
+    'Return ONLY valid JSON with the following structure: '
+    '{"score": int 0-10, "reasons": short string in English, "contact": boolean (true if score >= 7)}.'
 )
+
+
 TOP_UNI_CANONICAL = [
     "Harvard University","Stanford University","Massachusetts Institute of Technology","University of Oxford","University of Cambridge",
     "ETH Zurich","EPFL","University of Bologna","Università Bocconi","Politecnico di Milano","Politecnico di Torino","Sapienza University of Rome",
-    "Scuola Superiore Sant'Anna","Scuola Normale Superiore"  # Università Ca' Foscari venezia -Unitversità degli studi triste - Universtià di trento - Universtià degli studi di Bari - politecnico di bari - Alma mater studiuorum bologna - Uni Pisa 
+    "Scuola Superiore Sant'Anna","Scuola Normale Superiore, ESCP Business School, London Business School, INSEAD, HEC Paris,  other top-tier universities worldwide"
 ]
+ 
+ 
 
 def _safe_json_extract(s):
     try:
@@ -174,7 +206,8 @@ def score(req: ScoreRequest):
             "linkedinUrl": str(r.linkedinUrl) if r.linkedinUrl else None,
         }
         
-        system_msg = SCORING_RULES_TEXT + " Considera anche questa lista di università top-tier come riferimento: " + ", ".join(TOP_UNI_CANONICAL) + "."
+        #system_msg = SCORING_RULES_TEXT + " Considera anche questa lista di università top-tier come riferimento: " + ", ".join(TOP_UNI_CANONICAL) + "."
+        system_msg = SCORING_RULES_TEXT + " Also consider the following list of top-tier universities as a reference: " + ", ".join(TOP_UNI_CANONICAL) + "."
         user_msg = json.dumps(payload, ensure_ascii=False)
 
         try:
