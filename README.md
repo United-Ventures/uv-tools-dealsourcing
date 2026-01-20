@@ -43,7 +43,7 @@ Move to the frontend directory:
 Build the Docker image targeting `linux/amd64` (required when working on Apple Silicon / ARM Macs) and push it to ACR:
 
 ```bash
-docker buildx build   --platform linux/amd64   -t uvregistrygfiacconi.azurecr.io/uv-backend:v6   .   --push
+docker buildx build   --platform linux/amd64   -t uvregistrygfiacconi.azurecr.io/uv-backend:v7   .   --push
 ```
 
 > **Note**  
@@ -56,7 +56,7 @@ docker buildx build   --platform linux/amd64   -t uvregistrygfiacconi.azurecr.io
 Update the existing Container App with the new image:
 
 ```bash
-az containerapp update   --name uv-frontend   --resource-group uv-rg   --image uvregistrygfiacconi.azurecr.io/uv-backend:v6
+az containerapp update   --name uv-frontend   --resource-group uv-rg   --image uvregistrygfiacconi.azurecr.io/uv-backend:v7
 ```
 
 Azure will automatically create a **new revision** and route traffic to the updated version.
