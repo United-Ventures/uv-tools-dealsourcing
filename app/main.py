@@ -71,6 +71,20 @@ def _normalize_domain_or_path(s: str | None) -> str:
     return x or "linkedin.com/in"
 
 
+def _domain_only(s: str | None) -> str | None:
+    """
+    Extracts a bare domain that matches ^([\w-]+\.)+\w+$
+    Returns None if not valid.
+    """
+    if not s:
+        return None
+    x = _normalize_domain_or_path(s)
+    domain = x.split("/")[0].strip()
+    if re.match(r"^([\w-]+\.)+\w+$", domain, flags=re.I):
+        return domain
+    return None
+
+
 def _canonical_linkedin_in(url: str | None) -> str | None:
     """
     Keeps ONLY canonical linkedin profile urls:
@@ -235,6 +249,10 @@ def serp(req: SerpRequest):
             "maxPagesPerQuery": int(req.max_pages),
             "mobileResults": False,
         }
+        # Apify expects a bare domain for `site` (e.g. linkedin.com)
+        site_domain = _domain_only(site_filter)
+        if site_domain:
+            apify_input["site"] = site_domain
 
         if language_code:
             apify_input["languageCode"] = language_code
