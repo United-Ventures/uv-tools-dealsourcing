@@ -7,9 +7,12 @@ import uuid
 import logging
 from urllib.parse import quote_plus
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from openai import OpenAI
+
+load_dotenv(override=True)
 
 from .schemas import (
     SerpRequest,
